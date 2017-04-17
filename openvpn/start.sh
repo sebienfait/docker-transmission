@@ -1,28 +1,30 @@
 #!/bin/sh
-vpn_provider="$(echo $OPENVPN_PROVIDER | tr '[A-Z]' '[a-z]')"
-vpn_provider_configs="/etc/openvpn/$vpn_provider"
-if [ ! -d "$vpn_provider_configs" ]; then
-	echo "Could not find OpenVPN provider: $OPENVPN_PROVIDER"
+vpn_config_folder="/etc/openvpn/config"
+vpn_config_folder="/Users/slamps/Temp/docker/docker-transmission-openvpn/openvpn/config"
+if [ ! -d "$vpn_config_folder" ]; then
+	echo "Could not find OpenVPN config folder : $vpn_config_folder"
 	echo "Please check your settings."
 	exit 1
 fi
 
-echo "Using OpenVPN provider: $OPENVPN_PROVIDER"
-
-if [ ! -z "$OPENVPN_CONFIG" ]
+vpn_config_files=(${vpn_config_folder}/*.ovpn)
+vpn_config="$(echo $OPENVPN_CONFIG)" 
+if [ ! -z "$vpn_config" ]
 then
-	if [ -f $vpn_provider_configs/"${OPENVPN_CONFIG}".ovpn ]
+	echo "Using OpenVPN config: $vpn_config"
+	vpn_config_file="${vpn_config_folder}/${vpn_config}.ovpn"
+	if [ -f $vpn_config_file ]
   	then
-		echo "Starting OpenVPN using config ${OPENVPN_CONFIG}.ovpn"
-		OPENVPN_CONFIG=$vpn_provider_configs/${OPENVPN_CONFIG}.ovpn
+		echo "Starting OpenVPN using config ${vpn_config}"
 	else
-		echo "Supplied config ${OPENVPN_CONFIG}.ovpn could not be found."
-		echo "Using default OpenVPN gateway for provider ${vpn_provider}"
-		OPENVPN_CONFIG=$vpn_provider_configs/default.ovpn
+		echo "Supplied config ${vpn_config}.ovpn could not be found."
+		vpn_config_file="${vpn_config_files[RANDOM % ${#vpn_config_files[@]}]}"
+		echo "Using random OpenVPN config ${vpn_config_file}"
 	fi
 else
-	echo "No VPN configuration provided. Using default."
-	OPENVPN_CONFIG=$vpn_provider_configs/default.ovpn
+	echo "No VPN configuration provided. Using random config."
+	vpn_config_file="${vpn_config_files[RANDOM % ${#vpn_config_files[@]}]}"
+	echo "Using random OpenVPN config ${vpn_config_file}"
 fi
 
 # add OpenVPN user/pass
@@ -46,12 +48,4 @@ dockerize -template /etc/transmission/environment-variables.tmpl:/etc/transmissi
 
 TRANSMISSION_CONTROL_OPTS="--script-security 2 --up /etc/transmission/start.sh --down /etc/transmission/stop.sh"
 
-if [ -n "${LOCAL_NETWORK-}" ]; then
-  eval $(/sbin/ip r l m 0.0.0.0 | awk '{if($5!="tun0"){print "GW="$3"\nINT="$5; exit}}')
-  if [ -n "${GW-}" -a -n "${INT-}" ]; then
-    echo "adding route to local network $LOCAL_NETWORK via $GW dev $INT"
-    /sbin/ip r a "$LOCAL_NETWORK" via "$GW" dev "$INT"
-  fi
-fi
-
-exec openvpn $TRANSMISSION_CONTROL_OPTS $OPENVPN_OPTS --config "$OPENVPN_CONFIG"
+exec openvpn $TRANSMISSION_CONTROL_OPTS $OPENVPN_OPTS --config "$vpn_config_file"
