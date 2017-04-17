@@ -16,7 +16,7 @@ then
 	if [ -f $vpn_config_file ]
   	then
 		echo "Starting OpenVPN using config ${vpn_config}"
-	else
+	else docker build
 		echo "Supplied config ${vpn_config}.ovpn could not be found."
 		vpn_config_file="${vpn_config_files[RANDOM % ${#vpn_config_files[@]}]}"
 		echo "Using random OpenVPN config ${vpn_config_file}"
