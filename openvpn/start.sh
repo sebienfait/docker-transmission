@@ -1,6 +1,5 @@
-#!/bin/sh
+#!/bin/bash
 vpn_config_folder="/etc/openvpn/config"
-vpn_config_folder="/Users/slamps/Temp/docker/docker-transmission-openvpn/openvpn/config"
 if [ ! -d "$vpn_config_folder" ]; then
 	echo "Could not find OpenVPN config folder : $vpn_config_folder"
 	echo "Please check your settings."
@@ -39,13 +38,15 @@ else
   chmod 600 /config/openvpn-credentials.txt
 fi
 
-# add transmission credentials from env vars
+echo "Add transmission credentials from env vars"
 echo $TRANSMISSION_RPC_USERNAME > /config/transmission-credentials.txt
 echo $TRANSMISSION_RPC_PASSWORD >> /config/transmission-credentials.txt
 
-# Persist transmission settings for use by transmission-daemon
+echo "Persist transmission settings for use by transmission-daemon"
 dockerize -template /etc/transmission/environment-variables.tmpl:/etc/transmission/environment-variables.sh /bin/true
 
+echo "Create Transmission options"
 TRANSMISSION_CONTROL_OPTS="--script-security 2 --up /etc/transmission/start.sh --down /etc/transmission/stop.sh"
 
+echo "Launch OpenVPN client"
 exec openvpn $TRANSMISSION_CONTROL_OPTS $OPENVPN_OPTS --config "$vpn_config_file"

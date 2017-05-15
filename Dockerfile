@@ -1,9 +1,9 @@
 # Transmission and OpenVPN
 #
-# Version 1.0.0
+# Version 1.15
 
-FROM ubuntu:16.10
-MAINTAINER Sebienfait
+FROM ubuntu:14.04
+MAINTAINER sebienfait
 
 VOLUME /data
 VOLUME /config
@@ -108,4 +108,4 @@ ENV OPENVPN_USERNAME=**None** \
 
 # Expose port and run
 EXPOSE 9091
-CMD ["/etc/openvpn/start.sh"]
+CMD ["dumb-init", "/etc/openvpn/start.sh"]
