@@ -1,51 +1,58 @@
-#!/bin/sh
-vpn_config_folder="/etc/openvpn/config"
-vpn_config_folder="/Users/slamps/Temp/docker/docker-transmission-openvpn/openvpn/config"
-if [ ! -d "$vpn_config_folder" ]; then
-	echo "Could not find OpenVPN config folder : $vpn_config_folder"
+#!/bin/bash
+openvpn_config_file="${OPENVPN_CONFIG}"
+openvpn_username="${OPENVPN_USERNAME}"
+openvpn_password="${OPENVPN_PASSWORD}"
+openvpn_config_folder="/etc/openvpn/config"
+openvpn_config_files=(${openvpn_config_folder}/*.ovpn)
+openvpn_login_file="/tmp/.login.temp"
+
+if [ ! -d "${openvpn_config_folder}" ]; then
+	echo "Could not find OpenVPN config folder : ${openvpn_config_folder}"
 	echo "Please check your settings."
 	exit 1
 fi
 
-vpn_config_files=(${vpn_config_folder}/*.ovpn)
-vpn_config="$(echo $OPENVPN_CONFIG)" 
-if [ ! -z "$vpn_config" ]
+if [ ! -z "${openvpn_config_file}" ]
 then
-	echo "Using OpenVPN config: $vpn_config"
-	vpn_config_file="${vpn_config_folder}/${vpn_config}.ovpn"
-	if [ -f $vpn_config_file ]
+	echo "Using OpenVPN config: ${openvpn_config_file}"
+	vpn_config_file="${openvpn_config_folder}/${openvpn_config_file}.ovpn"
+	if [ -f ${vpn_config_file} ]
   	then
-		echo "Starting OpenVPN using config ${vpn_config}"
+		echo "Starting OpenVPN using config ${openvpn_config_file}"
 	else docker build
-		echo "Supplied config ${vpn_config}.ovpn could not be found."
-		vpn_config_file="${vpn_config_files[RANDOM % ${#vpn_config_files[@]}]}"
+		echo "Supplied config ${openvpn_config_file}.ovpn could not be found."
+		vpn_config_file="${openvpn_config_files[RANDOM % ${#openvpn_config_files[@]}]}"
 		echo "Using random OpenVPN config ${vpn_config_file}"
 	fi
 else
 	echo "No VPN configuration provided. Using random config."
-	vpn_config_file="${vpn_config_files[RANDOM % ${#vpn_config_files[@]}]}"
+	vpn_config_file="${openvpn_config_files[RANDOM % ${#openvpn_config_files[@]}]}"
 	echo "Using random OpenVPN config ${vpn_config_file}"
 fi
 
 # add OpenVPN user/pass
-if [ "${OPENVPN_USERNAME}" = "**None**" ] || [ "${OPENVPN_PASSWORD}" = "**None**" ] ; then
+if [ "${openvpn_username}" = "**None**" ] || [ "${openvpn_password}" = "**None**" ] ; then
  echo "OpenVPN credentials not set. Exiting."
  exit 1
 else
   echo "Setting OPENVPN credentials..."
-  mkdir -p /config
-  echo $OPENVPN_USERNAME > /config/openvpn-credentials.txt
-  echo $OPENVPN_PASSWORD >> /config/openvpn-credentials.txt
-  chmod 600 /config/openvpn-credentials.txt
+  echo ${openvpn_username} > ${openvpn_login_file}
+  echo ${openvpn_password} >> ${openvpn_login_file}
+  chmod 600 ${openvpn_login_file}
 fi
 
-# add transmission credentials from env vars
-echo $TRANSMISSION_RPC_USERNAME > /config/transmission-credentials.txt
-echo $TRANSMISSION_RPC_PASSWORD >> /config/transmission-credentials.txt
+echo "Build OpenVPN options"
+openvpn_opts="--script-security 2 --up /etc/transmission/start.sh --down /etc/transmission/stop.sh --daemon --route-noexec --auth-user-pass ${openvpn_login_file} ${OPENVPN_OPTS}"
+echo "OpenVPN options: ${openvpn_opts}"
 
-# Persist transmission settings for use by transmission-daemon
+echo "Add transmission credentials from env vars"
+echo ${TRANSMISSION_RPC_USERNAME} > /tmp/transmission-credentials.txt
+echo ${TRANSMISSION_RPC_PASSWORD} >> /tmp/transmission-credentials.txt
+
+echo "Persist transmission settings for use by transmission-daemon"
 dockerize -template /etc/transmission/environment-variables.tmpl:/etc/transmission/environment-variables.sh /bin/true
 
-TRANSMISSION_CONTROL_OPTS="--script-security 2 --up /etc/transmission/start.sh --down /etc/transmission/stop.sh"
+echo "Exec OpenVPN client with options"
+exec openvpn --config "${vpn_config_file}" ${openvpn_opts} || rm -f ${openvpn_login_file} && exit $?
 
-exec openvpn $TRANSMISSION_CONTROL_OPTS $OPENVPN_OPTS --config "$vpn_config_file"
+echo "End of start"
