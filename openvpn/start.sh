@@ -2,7 +2,7 @@
 openvpn_config_file="${OPENVPN_CONFIG}"
 openvpn_username="${OPENVPN_USERNAME}"
 openvpn_password="${OPENVPN_PASSWORD}"
-openvpn_config_folder="/etc/openvpn/config"
+openvpn_config_folder="/etc/openvpn/vpntunnel"
 openvpn_config_files=(${openvpn_config_folder}/*.ovpn)
 openvpn_login_file="/tmp/.login.temp"
 

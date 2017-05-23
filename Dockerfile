@@ -108,5 +108,4 @@ ENV OPENVPN_USERNAME=**None** \
 
 # Expose port and run
 EXPOSE 9091
-CMD "/bin/bash"
-#CMD ["/etc/openvpn/start.sh"]
+CMD ["/etc/openvpn/start.sh"]
