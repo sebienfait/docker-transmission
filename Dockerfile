@@ -2,7 +2,7 @@
 #
 # Version 1.15
 
-FROM ubuntu:14.04
+FROM ubuntu:16.10
 MAINTAINER sebienfait
 
 VOLUME /data
