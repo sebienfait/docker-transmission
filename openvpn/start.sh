@@ -1,9 +1,5 @@
 #!/bin/bash
-<<<<<<< HEAD
-vpn_config_folder="/etc/openvpn/config"
-if [ ! -d "$vpn_config_folder" ]; then
-	echo "Could not find OpenVPN config folder : $vpn_config_folder"
-=======
+
 openvpn_config_file="${OPENVPN_CONFIG}"
 openvpn_username="${OPENVPN_USERNAME}"
 openvpn_password="${OPENVPN_PASSWORD}"
@@ -13,7 +9,6 @@ openvpn_login_file="/tmp/.login.temp"
 
 if [ ! -d "${openvpn_config_folder}" ]; then
 	echo "Could not find OpenVPN config folder : ${openvpn_config_folder}"
->>>>>>> 0f0d6e9c13f6e2fe7921e5d6ddbf469f358455a9
 	echo "Please check your settings."
 	exit 1
 fi
