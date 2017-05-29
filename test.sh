@@ -9,7 +9,7 @@ docker run \
     -e "OPENVPN_PROVIDER=vpntunnel" \
     -e "OPENVPN_CONFIG=Paris" \
     -e "OPENVPN_USERNAME=sebienfait" \
-    -e "OPENVPN_PASSWORD=Qe2oYo2Uvl" \
+    -e "OPENVPN_PASSWORD=password" \
     -p 9091:9091 \
      -it \
     docker-transmission
