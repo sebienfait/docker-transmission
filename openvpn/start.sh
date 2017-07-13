@@ -4,7 +4,7 @@ openvpn_login_file="/config/openvpn-credentials.txt"
 openvpn_username="${OPENVPN_USERNAME}"
 openvpn_password="${OPENVPN_PASSWORD}"
 openvpn_config="${OPENVPN_CONFIG}"
-openvpn_opts=" --script-security 2 --up /etc/openvpn/up.sh --down /etc/openvpn/down.sh ${OPENVPN_OPTS}"
+openvpn_opts="--route-noexec --script-security 2 --up /etc/openvpn/up.sh --down /etc/openvpn/down.sh ${OPENVPN_OPTS}"
 
 if [ -z "${openvpn_provider}" ]; then
 	echo "No VPN provider provided. Using vpntunnel by default."
