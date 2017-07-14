@@ -5,7 +5,7 @@
 FROM ubuntu:16.10
 MAINTAINER sebienfait
 
-VOLUME /data
+VOLUME /download
 VOLUME /config
 
 # Update packages and install software
@@ -17,6 +17,7 @@ RUN apt-get update \
     && apt-get update \
     && apt-get install -y transmission-cli transmission-common transmission-daemon \
     && apt-get install -y openvpn curl rar unrar zip unzip wget \
+    && apt-get install -y traceroute \
     && curl -sLO https://github.com/Yelp/dumb-init/releases/download/v1.0.1/dumb-init_1.0.1_amd64.deb \
     && dpkg -i dumb-init_*.deb \
     && rm -rf dumb-init_*.deb \

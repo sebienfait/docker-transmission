@@ -1,6 +1,6 @@
 #!/bin/bash
 openvpn_provider="$(echo ${OPENVPN_PROVIDER} | tr '[A-Z]' '[a-z]')"
-openvpn_login_file="/config/openvpn-credentials.txt"
+openvpn_login_file="/config/.openvpn-credentials.txt"
 openvpn_username="${OPENVPN_USERNAME}"
 openvpn_password="${OPENVPN_PASSWORD}"
 openvpn_config="${OPENVPN_CONFIG}"

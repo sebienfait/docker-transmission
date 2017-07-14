@@ -13,13 +13,13 @@ docker run \
     --privileged \
     --cap-add=NET_ADMIN \
     --device=/dev/net/tun \
-    -v /home/seb/Temp/docker/data/:/data \
+    -v /tmp/download/:/download \
+    -v /tmp/config/:/config \
     -v /etc/localtime:/etc/localtime:ro \
     -p 9091:9091 \
     -e "OPENVPN_CONFIG=Paris" \
     -e "OPENVPN_USERNAME=username" \
     -e "OPENVPN_PASSWORD=password" \
-    -e "TRANSMISSION_HOME=/data/config/transmission" \
     -e "TRANSMISSION_RPC_AUTHENTICATION_REQUIRED=true" \
     -e "TRANSMISSION_RPC_USERNAME=username" \
     -e "TRANSMISSION_RPC_PASSWORD=password" \
