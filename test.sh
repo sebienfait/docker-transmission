@@ -13,7 +13,7 @@ docker run \
     --privileged \
     --cap-add=NET_ADMIN \
     --device=/dev/net/tun \
-    -v /tmp/download/:/download \
+    -v /tmp/downloads/:/downloads \
     -v /tmp/config/:/config \
     -v /etc/localtime:/etc/localtime:ro \
     -p 9091:9091 \

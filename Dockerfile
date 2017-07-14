@@ -5,7 +5,7 @@
 FROM ubuntu:16.10
 MAINTAINER sebienfait
 
-VOLUME /download
+VOLUME /downloads
 VOLUME /config
 
 # Update packages and install software
